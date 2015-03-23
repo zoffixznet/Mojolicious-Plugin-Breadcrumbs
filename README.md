@@ -1,72 +1,104 @@
 # NAME
 
-Mojolicious::Plugin::AntiSpamMailTo - Mojolicious plugin for obfuscating email addresses
+Mojolicious::Plugin::Breadcrumbs - Mojolicious plugin for autogenerating breadcrumbs links
 
 # SYNOPSIS
 
-    #!/usr/bin/env perl
+<div>
+    <div style="display: table; height: 91px; background: url(http://zoffix.com/CPAN/Dist-Zilla-Plugin-Pod-Spiffy/icons/section-code.png) no-repeat left; padding-left: 120px;" ><div style="display: table-cell; vertical-align: middle;">
+</div>
+
+    #!perl
 
     use Mojolicious::Lite;
 
-    plugin 'AntiSpamMailTo';
-    app->mailto('zoffix@cpan.com'); # save the address
+    plugin 'Breadcrumbs';
 
-    get '/' => 'index';
+    get '/user/account-settings' => 'account-settings';
 
     app->start;
 
     __DATA__
 
-    @@ index.html.ep
+    @@ account-settings.html.ep
 
-    <p><a
-        href="<%== mailto_href %>">
-            Send me an email at <%== mailto %>
-    </a></p>
+    You are at <%== breadcrumbs %>
 
-Every call to `mailto_href()` or `mailto()` updates the globally
-stored email address. But you can use a different address each time:
+<div>
+    </div></div>
+</div>
 
-    #!/usr/bin/env perl
+The output in the browser then be this
+_(actual output will not have line breaks)_:
+
+    You are at
+    <section class="breadcrumbs">
+        <a href="/">Home</a><span class="breadcrumb_sep">▸</span>
+        <a href="/user">User</a><span class="breadcrumb_sep">▸</span>
+            <span class="last_breadcrumb">Account settings</span>
+    </section>
+
+By default, `/` path will be named `Home`, and all other paths
+will be named by changing `-` and `_` characters to spaces and
+capitalizing the first letter. You can provide your
+own mapping for certain paths, by passing a mapping
+hashref to `breadcrumbs` helper. Anything not found in the map will
+still be named as described above.
+
+<div>
+    <div style="display: table; height: 91px; background: url(http://zoffix.com/CPAN/Dist-Zilla-Plugin-Pod-Spiffy/icons/section-code.png) no-repeat left; padding-left: 120px;" ><div style="display: table-cell; vertical-align: middle;">
+</div>
+
+    #!perl
 
     use Mojolicious::Lite;
 
-    plugin 'AntiSpamMailTo';
-
-    get '/' => 'index';
+    plugin 'Breadcrumbs';
+    app->breadcrumbs({
+        '/'     => 'Start page',
+        '/user' => 'Your account',
+        '/user/account-settings' => 'Settings',
+    });
+    get '/user/account-settings' => 'account-settings';
 
     app->start;
 
     __DATA__
 
-    @@ index.html.ep
+    @@ account-settings.html.ep
 
-    <p><a
-        href="<%== mailto_href 'foo@example.com' %>">
-            Send me an email at <%== mailto 'bar@example.com' %>
-    </a></p>
+    You are at <%== breadcrumbs %>
 
-The output in the browser would be this, with each character in the
-email address HTML encoded:
+<div>
+    </div></div>
+</div>
 
-    <p><a
-        href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#122;&#111;&#102;&#102;&#105;&#120;&#64;&#99;&#112;&#97;&#110;&#46;&#99;&#111;&#109;">
-            Send me an email at &#122;&#111;&#102;&#102;&#105;&#120;&#64;&#99;&#112;&#97;&#110;&#46;&#99;&#111;&#109;
-    </a></p>
+The output in the browser then be this
+_(actual output will not have line breaks)_:
+
+    You are at
+    <section class="breadcrumbs">
+        <a href="/">Start page</a><span class="breadcrumb_sep">▸</span>
+        <a href="/user">Your account</a>
+        <span class="breadcrumb_sep">▸</span>
+            <span class="last_breadcrumb">Settings</span>
+    </section>
 
 # DESCRIPTION
 
-[Mojolicious::Plugin::AntiSpamMailTo](https://metacpan.org/pod/Mojolicious::Plugin::AntiSpamMailTo) is a [Mojolicious](https://metacpan.org/pod/Mojolicious) plugin for
-outputting email addresses as encoded HTML entities, which
-(kinda seems to) confuses a bunch of noobish spam bots, lowering the
-amount of crap you get sent to the address.
+[Mojolicious::Plugin::Breadcrumbs](https://metacpan.org/pod/Mojolicious::Plugin::Breadcrumbs) is a [Mojolicious](https://metacpan.org/pod/Mojolicious) plugin for
+auto-generating breadcrumbs.
 
 # METHODS
 
-[Mojolicious::Plugin::AntiSpamMailTo](https://metacpan.org/pod/Mojolicious::Plugin::AntiSpamMailTo) inherits all methods from
+[Mojolicious::Plugin::Breadcrumbs](https://metacpan.org/pod/Mojolicious::Plugin::Breadcrumbs) inherits all methods from
 [Mojolicious::Plugin](https://metacpan.org/pod/Mojolicious::Plugin) and implements the following new ones.
 
-## register
+## `->register()`
+
+<div>
+    <img alt="" src="http://zoffix.com/CPAN/Dist-Zilla-Plugin-Pod-Spiffy/icons/in-object.png">
+</div>
 
     $plugin->register(Mojolicious->new);
 
@@ -74,42 +106,68 @@ Register plugin in [Mojolicious](https://metacpan.org/pod/Mojolicious) applicati
 
 # HELPERS
 
-## `mailto`
+## `breadcrumbs`
 
-    Send me an email at <%== mailto 'zoffix@cpan.com' %>
+<div>
+    <img alt="" src="http://zoffix.com/CPAN/Dist-Zilla-Plugin-Pod-Spiffy/icons/in-scalar-optional.png">
+</div>
 
-Takes one optional argument, an email address, and returns an encoded
-version of it. The email address gets stored, so any future
-calls without any arguments will use the address from the
-previous call to `mailto` or `mailto_href`.
+Using in HTML:
 
-## `mailto_href`
+    You are at <%== breadcrumbs %>
 
-    <a href="<%== mailto_href 'zoffix@cpan.com' %>">Send me an email</a>
+Setting custom link names:
 
-This is what's you use in `href=""` attributes. Takes one
-optional argument, an email address, prepends string `mailto:` to it,
-and returns an encoded version of it.
-The email address gets stored so any future
-calls without any arguments will use the address from the
-previous call to `mailto` or `mailto_href`.
+    app->breadcrumbs(
+        '/'     => 'Start page',
+        '/user' => 'Your account',
+        '/user/account-settings' => 'Settings',
+    );
+
+See SYNOPSIS for full description of use and arguments.
 
 # REPOSITORY
 
+<div>
+    <div style="display: table; height: 91px; background: url(http://zoffix.com/CPAN/Dist-Zilla-Plugin-Pod-Spiffy/icons/section-github.png) no-repeat left; padding-left: 120px;" ><div style="display: table-cell; vertical-align: middle;">
+</div>
+
 Fork this module on GitHub:
-[https://github.com/zoffixznet/Mojolicious-Plugin-AntiSpamMailTo](https://github.com/zoffixznet/Mojolicious-Plugin-AntiSpamMailTo)
+[https://github.com/zoffixznet/Mojolicious-Plugin-Breadcrumbs](https://github.com/zoffixznet/Mojolicious-Plugin-Breadcrumbs)
+
+<div>
+    </div></div>
+</div>
 
 # BUGS
 
+<div>
+    <div style="display: table; height: 91px; background: url(http://zoffix.com/CPAN/Dist-Zilla-Plugin-Pod-Spiffy/icons/section-bugs.png) no-repeat left; padding-left: 120px;" ><div style="display: table-cell; vertical-align: middle;">
+</div>
+
 To report bugs or request features, please use
-[https://github.com/zoffixznet/Mojolicious-Plugin-AntiSpamMailTo/issues](https://github.com/zoffixznet/Mojolicious-Plugin-AntiSpamMailTo/issues)
+[https://github.com/zoffixznet/Mojolicious-Plugin-Breadcrumbs/issues](https://github.com/zoffixznet/Mojolicious-Plugin-Breadcrumbs/issues)
 
 If you can't access GitHub, you can email your request
-to `bug-mojolicious-plugin-antispammailto at rt.cpan.org`
+to `bug-mojolicious-plugin-breadcrumbs at rt.cpan.org`
+
+<div>
+    </div></div>
+</div>
 
 # AUTHOR
 
-Zoffix Znet `zoffix at cpan.org`, ([http://zoffix.com/](http://zoffix.com/))
+<div>
+    <div style="display: table; height: 91px; background: url(http://zoffix.com/CPAN/Dist-Zilla-Plugin-Pod-Spiffy/icons/section-author.png) no-repeat left; padding-left: 120px;" ><div style="display: table-cell; vertical-align: middle;">
+</div>
+
+<div>
+    <span style="display: inline-block; text-align: center;"> <a href="http://metacpan.org/author/ZOFFIX"> <img src="http://www.gravatar.com/avatar/328e658ab6b08dfb5c106266a4a5d065?d=http%3A%2F%2Fwww.gravatar.com%2Favatar%2F627d83ef9879f31bdabf448e666a32d5" alt="ZOFFIX" style="display: block; margin: 0 3px 5px 0!important; border: 1px solid #666; border-radius: 3px; "> <span style="color: #333; font-weight: bold;">ZOFFIX</span> </a> </span>
+</div>
+
+<div>
+    </div></div>
+</div>
 
 # LICENSE
 
