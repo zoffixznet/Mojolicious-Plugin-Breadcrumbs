@@ -2,6 +2,8 @@
 
 use Mojolicious::Lite;
 
+# VERSION
+
 plugin 'Breadcrumbs';
 
 get '/user/account-settings' => 'account-settings';

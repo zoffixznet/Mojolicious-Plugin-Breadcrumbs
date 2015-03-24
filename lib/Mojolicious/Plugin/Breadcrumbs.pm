@@ -31,7 +31,10 @@ sub register {
                 push @crumbs, {
                     path => $path,
                     text => $Crumbs_Map->{ $path }
-                                // ucfirst($crumb =~ tr/-_/ /r),
+                                // do{
+                                    ( my $x = $crumb ) =~ tr/-_/ /;
+                                    ucfirst $x;
+                                },
                 };
             }
 
